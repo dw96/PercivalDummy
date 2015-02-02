@@ -1,4 +1,4 @@
-''' hello?
+''' was that?
 Created on Jan 15, 2015 - Based upon LpdFemUdpProducer.py (author: tcn45)
 
 @author: ckd27546
