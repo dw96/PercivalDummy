@@ -1,4 +1,4 @@
-''' was that?
+''' Master branch updated (after hot fix issue 53)
 Created on Jan 15, 2015 - Based upon LpdFemUdpProducer.py (author: tcn45)
 
 @author: ckd27546
