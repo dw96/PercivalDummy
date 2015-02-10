@@ -33,7 +33,7 @@ class PercivalUdpProducer(object):
         # Initialise shape of data arrays in terms of sections and pixels
         # 1 quarter     = 704 x 742 pixels (columns x rows)
         self.quarterRows = 2
-        self.quarterCols = 1        # 2
+        self.quarterCols = 2        # 2
         self.colBlocksPerQuarter = 22
         self.colsPerColBlock     = 32
         self.rowBlocksPerQuarter = 106
@@ -51,7 +51,7 @@ class PercivalUdpProducer(object):
         coarseValue = 0     # Which LVDS pair does data belong to?
         
         # Fill in image array with data according to emulator specifications
-        for subframe in range(1): #2):
+        for subframe in range(2):
             B0B1 = 0
 
             for row in range(self.rowBlocksPerQuarter * 2): # 106 * 2 = 212
@@ -68,7 +68,7 @@ class PercivalUdpProducer(object):
                             if coarseValue == 32:
                                 coarseValue = 0
                                 
-                        index = (subframe * self.numPixels) + (row * 4928) + (column * 224) + adc
+                        index = (subframe * self.numPixels/2) + (row * 4928) + (column * 224) + adc
                         
                         self.imageArray[index] = (coarseValue << 10) + (adc << 2) + B0B1 
 
@@ -85,7 +85,7 @@ class PercivalUdpProducer(object):
         startOfFrame    = 0#x80000000
         endOfFrame      = 0#x40000000
         self.bytesPerPixels      = 2
-        self.subframeSize        = self.numPixels * self.bytesPerPixels
+        self.subframeSize        = self.numPixels/2 * self.bytesPerPixels
 
         print "Starting Percival data transmission to address", self.host, "port", self.port, "..."
                 
