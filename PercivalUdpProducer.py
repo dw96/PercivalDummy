@@ -113,11 +113,11 @@ class PercivalUdpProducer(object):
 
             bytesRemaining = len(self.imageStream) 
             
-            streamPosn = 0
+            streamPosn      = 0
             subframeCounter = 0
-            packetCounter = 0
-            bytesSent = 0
-            subframeTotal = 0       # Count how much of the current subframe has been sent
+            packetCounter   = 0
+            bytesSent       = 0
+            subframeTotal   = 0       # How much of current subframe has been sent
 
             frameStartTime = time.time()
 
@@ -140,7 +140,7 @@ class PercivalUdpProducer(object):
                     header['PacketNumber'] = packetCounter | startOfFrame if packetCounter == 0 else packetCounter
                 
                 header['SubframeNumber'] = subframeCounter
-                header['FrameNumber'] = frame
+                header['FrameNumber']    = frame
                     
                 # Prepend header to current packet
                 packet = header.tostring() + self.imageStream[streamPosn:streamPosn+bytesToSend]
@@ -148,28 +148,37 @@ class PercivalUdpProducer(object):
                 # Transmit packet
                 bytesSent += sock.sendto(packet, (self.host, self.port))
 
-                bytesRemaining -= bytesToSend
-                streamPosn += bytesToSend
-                packetCounter += 1
-                subframeTotal += bytesToSend
+                bytesRemaining  -= bytesToSend
+                streamPosn      += bytesToSend
+                packetCounter   += 1
+                subframeTotal   += bytesToSend
 
                 if subframeTotal >= self.subframeSize:
                     print "  Sent Image frame:", frame, "subframe:", subframeCounter, "packets:", packetCounter, "bytes:", bytesSent
-                    subframeTotal = 0
+                    subframeTotal   = 0
                     subframeCounter += 1
                     packetCounter   = 0
-                    totalBytesSent += bytesSent
-                    bytesSent   = 0
+                    totalBytesSent  += bytesSent
+                    bytesSent       = 0
+
+            # Calculate wait time and sleep so that frames are sent at requested intervals            
+            frameEndTime = time.time()
+            waitTime = (frameStartTime + self.interval) - frameEndTime
+            if waitTime > 0:
+                time.sleep(waitTime)
+       
             
             ######## Transmit Reset Frame ########
 
             bytesRemaining = len(self.resetStream) 
             
-            streamPosn = 0
+            streamPosn      = 0
             subframeCounter = 0
-            packetCounter = 0
-            bytesSent = 0
-            subframeTotal = 0       # Count how much of the current subframe has been sent
+            packetCounter   = 0
+            bytesSent       = 0
+            subframeTotal   = 0       # How much of current subframe has been sent
+
+            frameStartTime = time.time()
 
             while bytesRemaining > 0:
                 
@@ -190,7 +199,7 @@ class PercivalUdpProducer(object):
                     header['PacketNumber'] = packetCounter | startOfFrame if packetCounter == 0 else packetCounter
                 
                 header['SubframeNumber'] = subframeCounter
-                header['FrameNumber'] = frame
+                header['FrameNumber']    = frame
                     
                 # Prepend header to current packet
                 packet = header.tostring() + self.resetStream[streamPosn:streamPosn+bytesToSend]
@@ -198,25 +207,25 @@ class PercivalUdpProducer(object):
                 # Transmit packet
                 bytesSent += sock.sendto(packet, (self.host, self.port))
 
-                bytesRemaining -= bytesToSend
-                streamPosn += bytesToSend
-                packetCounter += 1
-                subframeTotal += bytesToSend
+                bytesRemaining  -= bytesToSend
+                streamPosn      += bytesToSend
+                packetCounter   += 1
+                subframeTotal   += bytesToSend
 
                 if subframeTotal >= self.subframeSize:
                     print "  Sent Reset frame:", frame, "subframe:", subframeCounter, "packets:", packetCounter, "bytes:", bytesSent
-                    subframeTotal = 0
+                    subframeTotal   = 0
                     subframeCounter += 1
                     packetCounter   = 0
-                    totalBytesSent += bytesSent
-                    bytesSent   = 0
+                    totalBytesSent  += bytesSent
+                    bytesSent       = 0
             
-
             # Calculate wait time and sleep so that frames are sent at requested intervals            
             frameEndTime = time.time()
             waitTime = (frameStartTime + self.interval) - frameEndTime
             if waitTime > 0:
                 time.sleep(waitTime)
+
        
         runTime = time.time() - runStartTime
              
