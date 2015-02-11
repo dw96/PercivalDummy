@@ -1,0 +1,182 @@
+Percival GitHub stuff
+---------------------
+
+https://github.com/dw96/PercivalDummy.git
+
+setenv https_proxy http://wwwcache.rl.ac.uk/proxy.pac
+
+
+
+echo # PercivalDummy >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin git@github.com:dw96/PercivalDummy.git
+git push -u origin master
+
+-----
+
+git push origin master (push changes from local to remote(?))
+
+-----
+
+   790  9:19    kill 13200
+   791  9:20    eval `ssh-agent -c`
+   795  9:21    cd .ssh
+   797  9:21    rm id_dsa* id_rsa*
+   798  9:21    ssh-keygen -tdsa
+   800  9:23    cat id_dsa.pub
+   802  9:24    ssh-add					(enter pass phrase)
+   803  9:24    ssh-add -l				(list key(s))
+   804  9:25    ssh -T git@github.com			(Test)
+   805  9:26    cd -
+   806  9:26    cd
+   807  9:26    ls -l
+   808  9:26    cd workspace/Percival/
+   810  9:26    git clone git@github.com:percival-detector/framereceiver.git	("checkout" project)
+   812  9:27    cd framereceiver/
+   813  9:27    cd ..
+   814  9:27    mv framereceiver/ frameReceiver
+   816  9:27    cd frameReceiver/
+   817  9:27    ls
+   818  9:27    git log
+   819  9:27    git status
+   820  9:28    git remote -v
+
+-----
+
+Pass: ssh-keygen -t rsa -C "keyphrase" ^^
+
+-------
+
+[1.6 Get Started - First-Time Git Setup]
+
+git config --global user.name "John Doe"
+git config --global user.email johndoe@example.com
+git config --global core.editor emacs
+git config --list			(List your settings)
+git config <key>			(Check a specific key, e.g.: git config user.name)
+
+[2.1 Git Basics - Getting a Git Repository]
+..
+
+[2.2 Git Basics - Recording Changes to the Repository]
+
+git status				(Check status)
+git add <file>				(Track new file, or stage if already controlled by Git)
+
+git diff				(Show what's changed but not yet staged; NOT all changes since last commit, ONLY unstaged changes)
+git diff --staged			(Show what's staged and going into next commit; compares your staged changes to your last commit)
+git diff --cached			(Same as --staged)
+
+git difftool --tool-help		(Use external software to view differences)
+git difftool
+
+git commit -v				(Commit with git diff output displayed when commenting but not committed with comment !)
+git commit -a -m			(Commit all modified files - ignores whether they are staged or not)
+
+git rm <file>				(Remove file from Git)
+git rm --cached <file>			(Keep file in the working directory but stop tracking it)
+git mv file_from file_to		(Move file within git)
+
+[2.3 Git Basics - Viewing the Commit History]
+
+git log					(List commits made in repository in reverse chronological order)
+git log -S<string>			(Show commits that changed <string> in the code)
+git log [..] -- <Directory or file>	(Limit output to commits that changed that directory/file)
+git log --pretty=oneline		(Limit each commit info to 1 line)
+
+[2.4 Git Basic - Undoing Things - http://git-scm.com/book/en/v2/Git-Basics-Undoing-Things]
+
+
+git commit --amend			(Effectively undo -  Overwrite the most recent commit)
+
+git checkout -- <filename>		(Unmodify a modified file; revert to last committed version of file; WARNING DESTROYS LOCAL CHANGES!)
+
+[2.5 Git Basics - Working with Remotes]
+
+git remote				(Show which remote server(s) configured)
+git remote -v				(Shows which URL that Git stored +  their URL(s))
+git remote add [shortname] [url]	(Add remote repository as a short name)
+git fetch [origin]			(Fetch info from remote that's absent locally)
+
+git pull				(fetch and merge from remote to local - if your branch tracking a remote branch)
+git push [remote-name] [branch-name]	(push your data to remote repository)
+					(e.g. git push origin master)
+
+git remote show [remote-name]		(Show more information about remote)
+git remote rename [old] [new]		(Rename a remote's shortname)
+git remote rm [remote]			(Remove branch name)
+
+[2.6 Git Basic - Tagging]
+
+git tag -a v1.4 -m 'my version 1.4'	(Create an annotated tag [-a])
+git tag					(Show tags)
+git show v1.4				(Show specific tag info)
+git tag -a v1.2 <part of checksum>	(Tag an old commit)
+git push origin [tagname]		(Push tag to remote)
+git push origin --tags			(Push all tags to remote repository)
+
+[2.0 Git Basic - Git Aliases - http://git-scm.com/book/en/v2/Git-Basics-Git-Aliases]
+
+..
+
+[3.1 Git Branching]
+
+git branch [branch name]			(Create a new branch)
+git checkout [branch name]			(Switch to branch)
+git log --oneline --decorate			(Show what branch pointers are pointing at)
+git log --oneline --decorate --graph --all	(Show history of commits, including branch pointers and diversions)
+
+[3.2 Git Branching - Basic Branching and Merging]
+
+git checkout -b <branch name>			(Create and switch to branch name)
+git checkout master; git merge hotfix		(Merge hotfix into master)
+git branch -d <branch name>			(Delete branch name)
+
+
+[3.3 Git Branching - Branch Management]
+
+git branch				(List current branches; * denotes current branch)
+git branch -v				(see last commit on each branch)
+		--merged;--no-merged	(See branches [not] merged; branches without * generally safe to delete)
+
+[3.5 Git Branching - Remote Branches]
+
+git fetch [remote]					(Update local database to match update(s) from remote)
+git remote add teamone git://git.teamone.ourcompany.com	(Add another remote server)
+(git fetch teamone)
+git push [remote] [branch]				(push changes in branch onto remote)
+git push origin localbranch:remotebranch		(Ditto, specifying remotebranch's name explicitly)
+							(Fetching remote updates doesn't automatically make copy editable)
+git checkout -b localbranch origin/remotebranch	 	(Gives you a local branch beginning at origin/remotebranch)
+git branch -vv						(List local branches with tracking status; NOTE: based upon cached values)
+							(To ensure up-to-date numbers: 		)
+							(git fetch --all; git Branch -vv	)
+git fetch --all						(Ensure change(s) from remote(s) downloaded)
+git push remote --delete branch				(Delete branch from remote server)
+
+[3.6 Git Branching - Rebasing]
+
+git checkout [branch]			(rebase - 2-way merge)
+git rebase master			(	makes history linear and more clear)
+git checkout master
+git merge [branch]
+
+! Do not rebase commit that exist outside your repository !
+
+[4.1 Git on the Server - The Protocols		http://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols ]
+…
+[4.10 Git on the Server - Summary		git-scm.com/book/en/v2/Git-on-the-Server-Summary ]
+
+
+
+
+
+
+
+Miscellaneous:
+
+git show <SHA-1>			(Show commit corresponding to SHA-1 string)
+git log --abbrev-commit --pretty=oneline (Shrinks SHA-1 into shorter, unique strings)
+git reflog				(Show where your HEAD and branch reference have been)
