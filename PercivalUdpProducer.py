@@ -39,14 +39,16 @@ class PercivalUdpProducer(object):
         self.rowBlocksPerQuarter = 106
         self.rowsPerRowBlock     = 7
         
-        self.numPixelRows = self.quarterRows * self.rowBlocksPerQuarter * self.rowsPerRowBlock
-        self.numPixelCols = self.quarterCols * self.colBlocksPerQuarter * self.colsPerColBlock
-        self.numPixels    = self.numPixelRows * self.numPixelCols
+        self.numPixelRows   = self.quarterRows * self.rowBlocksPerQuarter * self.rowsPerRowBlock
+        self.numPixelCols   = self.quarterCols * self.colBlocksPerQuarter * self.colsPerColBlock
+        self.subframePixels = self.numPixelRows * self.numPixelCols / 2
         
         # Initialise an array representing a single image in the system
         self.imageArray = np.empty((self.numPixelRows * self.numPixelCols), dtype=np.uint16)
         self.resetArray = np.ones((self.numPixelRows * self.numPixelCols), dtype=np.uint16)
 
+        self.numADCs = 224
+        
         B0B1        = 0     # Which of the 4 horizontal regions does data come from?
         coarseValue = 0     # Which LVDS pair does data belong to?
         
@@ -54,38 +56,37 @@ class PercivalUdpProducer(object):
         for subframe in range(2):
             B0B1 = 0
 
-            for row in range(self.rowBlocksPerQuarter * 2): # 106 * 2 = 212
+            for row in range(self.rowBlocksPerQuarter * self.quarterRows): # 106 * 2 = 212
+
                 if (row % 53 == 0) and (row != 0):
                     B0B1 += 1
-                    #print "B0B1: %d + index: %d" % (B0B1, index+1)
             
                 for column in range(self.colBlocksPerQuarter):
                 
-                    for adc in range(224):          # = self.rowsPerRowBlock * self.colBlocksPerQuarter ? (7 * 32 = 224)
+                    for adc in range(self.numADCs):          # 224
                         
                         if (adc % 32 == 0) and (adc != 0):
                             coarseValue += 1
                             if coarseValue == 32:
                                 coarseValue = 0
                                 
-                        index = (subframe * self.numPixels/2) + (row * 4928) + (column * 224) + adc
+                        index = (subframe * self.subframePixels) + (row * 4928) + (column * 224) + adc
                         
                         self.imageArray[index] = (coarseValue << 10) + (adc << 2) + B0B1 
-
                         self.resetArray[index] = (coarseValue << 10) + (1 << 2) + B0B1
 
         # Convert data stream to byte stream for transmission
-        self.byteStream = self.imageArray.tostring()
-
+        self.imageStream = self.imageArray.tostring()
+        self.resetStream = self.resetArray.tostring()
         
         
     def run(self):
         
-        self.payloadLen = 8192
-        startOfFrame    = 0#x80000000
-        endOfFrame      = 0#x40000000
-        self.bytesPerPixels      = 2
-        self.subframeSize        = self.numPixels/2 * self.bytesPerPixels
+        self.payloadLen     = 8192
+        startOfFrame        = 0#x80000000
+        endOfFrame          = 0#x40000000
+        self.bytesPerPixels = 2
+        self.subframeSize   = self.subframePixels * self.bytesPerPixels
 
         print "Starting Percival data transmission to address", self.host, "port", self.port, "..."
                 
@@ -107,7 +108,10 @@ class PercivalUdpProducer(object):
         
         for frame in range(self.frames):
             
-            bytesRemaining = len(self.byteStream) 
+            print "frame: ", frame
+            ######## Transmit Image Frame ########
+
+            bytesRemaining = len(self.imageStream) 
             
             streamPosn = 0
             subframeCounter = 0
@@ -138,8 +142,8 @@ class PercivalUdpProducer(object):
                 header['SubframeNumber'] = subframeCounter
                 header['FrameNumber'] = frame
                     
-                # Append header to current packet
-                packet = header.tostring() + self.byteStream[streamPosn:streamPosn+bytesToSend]
+                # Prepend header to current packet
+                packet = header.tostring() + self.imageStream[streamPosn:streamPosn+bytesToSend]
 
                 # Transmit packet
                 bytesSent += sock.sendto(packet, (self.host, self.port))
@@ -147,15 +151,66 @@ class PercivalUdpProducer(object):
                 bytesRemaining -= bytesToSend
                 streamPosn += bytesToSend
                 packetCounter += 1
-                
                 subframeTotal += bytesToSend
+
                 if subframeTotal >= self.subframeSize:
-                    print "  Sent frame:", frame, "packets:", packetCounter, "subframe:", subframeCounter, "bytes:", bytesSent
+                    print "  Sent Image frame:", frame, "subframe:", subframeCounter, "packets:", packetCounter, "bytes:", bytesSent
                     subframeTotal = 0
                     subframeCounter += 1
                     packetCounter   = 0
+                    totalBytesSent += bytesSent
+                    bytesSent   = 0
+            
+            ######## Transmit Reset Frame ########
 
-            totalBytesSent += bytesSent
+            bytesRemaining = len(self.resetStream) 
+            
+            streamPosn = 0
+            subframeCounter = 0
+            packetCounter = 0
+            bytesSent = 0
+            subframeTotal = 0       # Count how much of the current subframe has been sent
+
+            while bytesRemaining > 0:
+                
+                # Calculate packet size and construct header
+
+                if bytesRemaining <= self.payloadLen:
+                    bytesToSend = bytesRemaining
+                    header['PacketNumber'] = packetCounter | endOfFrame
+
+                else:
+                    
+                    subframeRemainder = self.subframeSize - subframeTotal
+                    # Would sending full payload contain data from next subframe?
+                    if (subframeRemainder < self.payloadLen):
+                        bytesToSend = subframeRemainder
+                    else:
+                        bytesToSend = self.payloadLen
+                    header['PacketNumber'] = packetCounter | startOfFrame if packetCounter == 0 else packetCounter
+                
+                header['SubframeNumber'] = subframeCounter
+                header['FrameNumber'] = frame
+                    
+                # Prepend header to current packet
+                packet = header.tostring() + self.resetStream[streamPosn:streamPosn+bytesToSend]
+
+                # Transmit packet
+                bytesSent += sock.sendto(packet, (self.host, self.port))
+
+                bytesRemaining -= bytesToSend
+                streamPosn += bytesToSend
+                packetCounter += 1
+                subframeTotal += bytesToSend
+
+                if subframeTotal >= self.subframeSize:
+                    print "  Sent Reset frame:", frame, "subframe:", subframeCounter, "packets:", packetCounter, "bytes:", bytesSent
+                    subframeTotal = 0
+                    subframeCounter += 1
+                    packetCounter   = 0
+                    totalBytesSent += bytesSent
+                    bytesSent   = 0
+            
 
             # Calculate wait time and sleep so that frames are sent at requested intervals            
             frameEndTime = time.time()
