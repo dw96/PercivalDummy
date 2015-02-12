@@ -57,23 +57,29 @@ class PercivalUdpProducer(object):
             B0B1 = 0
 
             for row in range(self.rowBlocksPerQuarter * self.quarterRows): # 106 * 2 = 212
-
+                coarseValue = 0
+                
                 if (row % 53 == 0) and (row != 0):
                     B0B1 += 1
-            
+
                 for column in range(self.colBlocksPerQuarter):
-                
+                    
                     for adc in range(self.numADCs):          # 224
                         
-                        if (adc % 32 == 0) and (adc != 0):
-                            coarseValue += 1
-                            if coarseValue == 32:
-                                coarseValue = 0
+#                        if (adc % 32 == 0) and (adc != 0):
+#                            coarseValue += 1
+#                            if coarseValue == 32:
+#                                coarseValue = 0
                                 
                         index = (subframe * self.subframePixels) + (row * 4928) + (column * 224) + adc
                         
-                        self.imageArray[index] = (coarseValue << 10) + (adc << 2) + B0B1 
+                        self.imageArray[index] = (coarseValue << 10) + (adc << 2) + B0B1
+#                        self.imageArray[index] = (adc << 2) + B0B1              # Try without using the coarse values..
                         self.resetArray[index] = (coarseValue << 10) + (1 << 2) + B0B1
+                        # TO bug
+#                        if (adc < 94) and (subframe == 0) and (row == 0) and (column == 0):
+#                            print (row, column, adc), "C: 0x%4X, F: 0x%4X, B: 0x%4X. imgValue: 0x%4X" % ((coarseValue << 10), (adc << 2), B0B1, ((coarseValue << 10) + (adc << 2) + B0B1))
+                    coarseValue += 1
 
         # Convert data stream to byte stream for transmission
         self.imageStream = self.imageArray.tostring()
@@ -138,7 +144,7 @@ class PercivalUdpProducer(object):
                     else:
                         bytesToSend = self.payloadLen
                     header['PacketNumber'] = packetCounter | startOfFrame if packetCounter == 0 else packetCounter
-                
+
                 header['SubframeNumber'] = subframeCounter
                 header['FrameNumber']    = frame
                     
@@ -166,7 +172,12 @@ class PercivalUdpProducer(object):
             waitTime = (frameStartTime + self.interval) - frameEndTime
             if waitTime > 0:
                 time.sleep(waitTime)
-       
+           
+            # Clear header before transmitting reset frame(s)
+            header['SubframeNumber']    = 0
+            header['FrameNumber']       = 0    
+            header['PacketNumber']      = 0
+            header['Information']       = 0
             
             ######## Transmit Reset Frame ########
 
@@ -197,7 +208,7 @@ class PercivalUdpProducer(object):
                     else:
                         bytesToSend = self.payloadLen
                     header['PacketNumber'] = packetCounter | startOfFrame if packetCounter == 0 else packetCounter
-                
+
                 header['SubframeNumber'] = subframeCounter
                 header['FrameNumber']    = frame
                     
