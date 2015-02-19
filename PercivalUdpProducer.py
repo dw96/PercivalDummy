@@ -20,8 +20,9 @@ class PercivalUdpProducerError(Exception):
 class PercivalUdpProducer(object):
  
     # Define custom class for Percival header
-    HeaderType = np.dtype([('PacketType', np.uint8), ('SubframeNumber', np.uint8), ('FrameNumber', np.uint32), ('PacketNumber', np.uint16), ('Information', np.uint8, 14) ])
-    
+#    HeaderType = np.dtype([('PacketType', np.uint8), ('SubframeNumber', np.uint8), ('FrameNumber', np.uint32), ('PacketNumber', np.uint16), ('Information', np.uint8, 14) ])
+    HeaderType = np.dtype([('PacketType', '>i1'), ('SubframeNumber', '>i1'), ('FrameNumber', '>i4'), ('PacketNumber', '>i2'), ('Information', '>i1', 14) ])
+
     def __init__(self, host, port, frames, interval, display):
         
         self.host = host
@@ -103,7 +104,7 @@ class PercivalUdpProducer(object):
         header = np.zeros(1, dtype=self.HeaderType)
         
         # Load header with dummy values
-        header['PacketType']        = 85  # Packet Type        (1 Byte)     [85 = 0x55]
+        header['PacketType']        = 0  # Packet Type        (1 Byte)     [85 = 0x55]
         header['SubframeNumber']    = 0   # Subframe Number    (1 Byte)
         header['FrameNumber']       = 0   # Frame Number       (4 Bytes)    
         header['PacketNumber']      = 0   # Packet Number      (2 Bytes)
@@ -124,7 +125,8 @@ class PercivalUdpProducer(object):
             packetCounter   = 0
             bytesSent       = 0
             subframeTotal   = 0       # How much of current subframe has been sent
-
+            header['PacketType'] = 0
+            
             frameStartTime = time.time()
 
             while bytesRemaining > 0:
@@ -188,7 +190,8 @@ class PercivalUdpProducer(object):
             packetCounter   = 0
             bytesSent       = 0
             subframeTotal   = 0       # How much of current subframe has been sent
-
+            header['PacketType'] = 1
+            
             frameStartTime = time.time()
 
             while bytesRemaining > 0:
