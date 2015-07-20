@@ -1,3 +1,4 @@
+
 Percival GitHub stuff
 ---------------------
 
@@ -79,6 +80,13 @@ git rm <file>				(Remove file from Git)
 git rm --cached <file>			(Keep file in the working directory but stop tracking it)
 git mv file_from file_to		(Move file within git)
 
+	20/07/2015 ADDITIONS:
+
+git rm <file>				(Remove file)
+git rm <file> -f			(Remove file with changes not committed)
+git checkout -- <file>			(Restore file deleted from file system but not git)
+
+
 [2.3 Git Basics - Viewing the Commit History]
 
 git log					(List commits made in repository in reverse chronological order)
@@ -103,6 +111,16 @@ git fetch [origin]			(Fetch info from remote that's absent locally)
 git pull				(fetch and merge from remote to local - if your branch tracking a remote branch)
 git push [remote-name] [branch-name]	(push your data to remote repository)
 					(e.g. git push origin master)
+
+## push local changes to master branch ##
+
+git push
+
+git remote				(Name of remote)
+git branch				(Name of local branch)
+git diff origin/master master		(Compare changes between branch and remote)
+
+## push local .... .... .... .... .... ##
 
 git remote show [remote-name]		(Show more information about remote)
 git remote rename [old] [new]		(Rename a remote's shortname)
