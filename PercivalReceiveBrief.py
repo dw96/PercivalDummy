@@ -1,22 +1,15 @@
 '''
     PercivalReceiveBrief - Capture UDP traffic, saving the first and last 10 packets of each subframe
-
-Utilise this script from the Python command prompt:
-
-from PercivalReceiveBrief import PercivalReceiveBrief
-sock = PercivalReceiveBrief()
-sock.close();del  PercivalReceiveBrief
-
 '''
 # Source (in part): https://wiki.python.org/moin/UdpCommunication
 import socket, time, sys, numpy as np
 from datetime import datetime
 #        sys.stdout.flush()     # Flush stdout
 #       Or start from the command line with: python -u
-print "colour Roundup!"
-def PercivalReceiveBrief():
-    UDP_IP = "10.2.0.11"
-    UDP_PORT = 8001
+
+def PercivalReceiveBrief(address, udpPort):
+    UDP_IP = address      #"10.2.0.11"
+    UDP_PORT = udpPort    #8001
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.settimeout(5)
@@ -27,7 +20,7 @@ def PercivalReceiveBrief():
     f = open(fileName, "w")
     f.close()
 
-    print "Idling.",
+    print "Listening to %s:%d." % (UDP_IP, UDP_PORT)
     (subframe, data, packetCounter) = (0, 0, 0)
     listFiles = []
     try:
@@ -44,20 +37,23 @@ def PercivalReceiveBrief():
             except KeyboardInterrupt:
                 # User killed function
                 print "\n*** User initiated shutdown ***"
+                if not f.closed:
+                    #print "Closing the file %." %  fileName
+                    listFiles.append(fileName)
+                    f.close()
                 for index in listFiles:
                     print "(Saved file %s) " % index
-                if not f.closed:
-                    print "Closing the file"
-                    f.close()
                 return sock
             except socket.timeout as e: # e = "timed out"
                 # Close file handle (until data available again)
                 if not f.closed:
                     listFiles.append(fileName)
                     f.close()
-                    print "\nData received; Awaiting next to data.."
+                    print "\nData received; Awaiting next data.."
+                    sys.stdout.flush()
                 else:
                     print ".",
+                    sys.stdout.flush()
                 continue
                 #
             npData = np.fromstring(data[:23], dtype='uint8')
@@ -75,3 +71,18 @@ def PercivalReceiveBrief():
     except Exception as e:
         print "Unsuspected error:", e
 
+if __name__ == "__main__":
+    # Test user specified (UDP port) command line argument
+    (address, port) = ("10.2.0.11", 8000)
+    try:
+        address = sys.argv[1]
+        port    = int(sys.argv[2])
+        if not "." in address:      # rudimentary sanity check
+            raise Exception
+    except Exception:
+        print "Invalid input(s); Correct Usage: "
+        print "python PercivalReceiveBrief.py <address> <UDPport>\n"
+        print "e.g. ' python PercivalReceiveBrief.py 10.2.0.1 8000'\n"
+    else:
+        #print "Configured to listen on address:",  address, "port", port
+        PercivalReceiveBrief(address, port)
