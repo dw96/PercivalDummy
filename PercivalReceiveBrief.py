@@ -34,6 +34,8 @@ def PercivalReceiveBrief(address, udpPort):
                     dateString = datetime.now().strftime("%Y%m%d-%H%M%S")
                     fileName = "/tmp/Percy_headers-%s.txt" % ( dateString)
                     f = open(fileName, "w")
+                    print >> f, ("_____________________\nTarget: %s:%d\n_____________________\n" \
+                                 % (UDP_IP, UDP_PORT))
             except KeyboardInterrupt:
                 # User killed function
                 print "\n*** User initiated shutdown ***"
