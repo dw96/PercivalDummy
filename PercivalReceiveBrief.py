@@ -12,7 +12,7 @@ def PercivalReceiveBrief(address, udpPort):
     UDP_PORT = udpPort    #8001
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.settimeout(5)
+    sock.settimeout(10) #5)
     sock.bind((UDP_IP, UDP_PORT))
 
     # Open and close dummy file
@@ -29,6 +29,9 @@ def PercivalReceiveBrief(address, udpPort):
             packetCounter += 1
             try:
                 data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
+                if packetCounter == 1:
+                    print "Data received!\n"
+                    sys.stdout.flush()
                 # Data received, open file handle if shut
                 if f.closed:
                     dateString = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -45,7 +48,6 @@ def PercivalReceiveBrief(address, udpPort):
                     f.close()
                 for index in listFiles:
                     print "(Saved file %s) " % index
-                return sock
             except socket.timeout as e: # e = "timed out"
                 # Close file handle (until data available again)
                 if not f.closed:
@@ -56,7 +58,11 @@ def PercivalReceiveBrief(address, udpPort):
                 else:
                     print ".",
                     sys.stdout.flush()
-                continue
+                #continue
+                print "No data after waiting 10 seconds;Closing down.."
+                for index in listFiles:
+                    print "(Saved file %s) " % index
+                break
                 #
             npData = np.fromstring(data[:23], dtype='uint8')
             # Only display first & last packets of each subframe
