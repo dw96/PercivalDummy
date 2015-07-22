@@ -1,5 +1,5 @@
 '''
-    PercivalReceiveBrief - Capture UDP traffic, saving the first and last 10 packets of each subframe
+    PercivalReceiveBrief - Capture UDP traffic, extract the Percival UDP headers, saving the first and last 10 packets of each subframe
 '''
 # Source (in part): https://wiki.python.org/moin/UdpCommunication
 import socket, time, sys, numpy as np
@@ -37,8 +37,16 @@ def PercivalReceiveBrief(address, udpPort):
                     dateString = datetime.now().strftime("%Y%m%d-%H%M%S")
                     fileName = "/tmp/Percy_headers-%s.txt" % ( dateString)
                     f = open(fileName, "w")
-                    print >> f, ("_____________________\nTarget: %s:%d\n_____________________\n" \
-                                 % (UDP_IP, UDP_PORT))
+                    print >> f, "________________________________________"
+                    print >> f, ("Target: %s:%d\n" % (UDP_IP, UDP_PORT))
+                    headerInfo(f)
+                    print >> f, "________________________________________\n"
+                    try:
+                        sock.settimeout(3)
+                    except Exception as e:
+                        print "Couldn't reduce socket timeout: %s" % e
+                        return
+                                 
             except KeyboardInterrupt:
                 # User killed function
                 print "\n*** User initiated shutdown ***"
@@ -48,6 +56,7 @@ def PercivalReceiveBrief(address, udpPort):
                     f.close()
                 for index in listFiles:
                     print "(Saved file %s) " % index
+                return
             except socket.timeout as e: # e = "timed out"
                 # Close file handle (until data available again)
                 if not f.closed:
@@ -78,6 +87,16 @@ def PercivalReceiveBrief(address, udpPort):
                 print >> f, ""
     except Exception as e:
         print "Unsuspected error:", e
+
+
+def headerInfo(fHandle):
+    ''' Display internal boundaries within the UDP header '''
+    print >> fHandle, "   PktType [1 Byte]"
+    print >> fHandle, "      subframeNumber [1 Byte]"
+    print >> fHandle, "         FrameNumber [4 Bytes]"
+    print >> fHandle, "                     PacketNumber [2 Bytes]"
+    print >> fHandle, "   |  |  |           |"
+    print >> fHandle, "   |  |  |           |"
 
 if __name__ == "__main__":
     # Test user specified (UDP port) command line argument
