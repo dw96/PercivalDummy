@@ -17,6 +17,12 @@ class FirmwareTestingError(Exception):
 
 class FirmwareTesting(object):
     ''' Test setting IP/MAC addresses in the firmware '''
+ 
+    # Define legal commands #TODO: To include MAC/IP address?
+    LegalCommands = {
+                     "start" : "startd\n\r",
+                     "stop"  : "stopd\n\r\r"
+                     }
 
     ## New stuff
     Eth_Dev_RW   = 0x00000001
@@ -53,7 +59,7 @@ class FirmwareTesting(object):
 
     # Test this stuff:
 
-    def execute(self, command)
+    def execute(self, command):
 
         # Debugging Start
         if 1:   #command is FirmwareTesting.LegalCommands['stop']:
@@ -127,8 +133,8 @@ class FirmwareTesting(object):
             hexString = hexString + " %.2X" % (var_i)    # Construct hexadecimal string of IP address
             int_value[index] = var_i
             ip_value[index] = str(var_b)
-        #
-        print "IP Addr Hex =  ", hexString
+        #TODO: Uncomment Next-line?
+        #print "IP Addr Hex =  ", hexString
         temp_addr = "" + str(int_value[0]) + "." + str(int_value[1]) + "." + str(int_value[2]) + "." + str(int_value[3]) 
         if FirmwareTesting.address0Enabled:
             FirmwareTesting.ip_address_0 = temp_addr
@@ -139,8 +145,8 @@ class FirmwareTesting(object):
         if FirmwareTesting.address2Enabled:
             FirmwareTesting.ip_address_2 = temp_addr
             address2Enabled = False 
-        print "IP Addr Clean : ", temp_addr, " ip0: ", FirmwareTesting.ip_address_0, " ip1: ", FirmwareTesting.ip_address_1, " ip2: ", FirmwareTesting.ip_address_2
-        #     
+        #print "IP Addr Clean : ", temp_addr, " ip0: ", FirmwareTesting.ip_address_0, " ip1: ", FirmwareTesting.ip_address_1, " ip2: ", FirmwareTesting.ip_address_2
+        #TODO:  Uncomment previous line?     
         return ip_value     # Returns IP address as a list of integers 
     
     
@@ -172,9 +178,10 @@ class FirmwareTesting(object):
             hexString = hexString + cur_del
             int_value[index] = var_i
             mac_value[index] = str(var_b)   #TODO: Forced string conversion redundant here?
-        #
-        print "MAC Addr Hex =  ", hexString
-        print "MAC Addr Int   %d:%d:%d%d:%d:%d" % (int_value[0], int_value[1], int_value[2], int_value[3], int_value[4], int_value[5])
+
+        #TODO: Uncomment these?
+        #print "MAC Addr Hex =  ", hexString
+        #print "MAC Addr Int   %d:%d:%d%d:%d:%d" % (int_value[0], int_value[1], int_value[2], int_value[3], int_value[4], int_value[5])
         return mac_value 
     
     
@@ -193,11 +200,18 @@ class FirmwareTesting(object):
         #
         self.intToByte( HEADER, 0, 3, 8, command_b)
         #
-        for i in range(Length):
-            print " ** ", i, "send_to_HW() type(data)", type(data), type(data[1])
-            command_b = command_b[:(20+i)] + data[i] + command_b[(20+i):]
-            #command_b[20+i] = data[i]
-        print "Finished concatenation"
+##        X = 8
+##        print "For loop within send_to_HW(), command_b: '%s%s'" % (command_b[:6], command_b[X:])
+        try:
+            for i in range(Length):
+##                print " ** ", i, " Contents, 1st: '%s'" % command_b[X:(20+i)], " 2nd: ", data[i], " 3rd: ", command_b[(20+i):],
+##                print "Types, 1st: %s, 2nd: %s 3rd: %s" % (type(command_b[:(20+i)]), type(data[i]), type(command_b[(20+i):]))
+                command_b = command_b[:(20+i)] +  str(data[i]) + command_b[(20+i):]
+                #command_b[20+i] = data[i]
+        except Exception as e:
+            print " ** Exception at Index: %d out of %d. Error: %s" % (i, Length, e)
+##        print "Finished concatenation"
+##        print "command_b: '%s' " % command_b
         # Example :
         # Device ID  = 0x40000001;  # HW,  Write
         # Address  = 0x0x18000004;  # Control Register   
