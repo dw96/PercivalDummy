@@ -228,9 +228,14 @@ class FirmwareTesting(object):
     
     def intToByte(self, header, offset, length, offset2, command_b):
         ''' Functionality change so that header inserted into command_b according to offset and offset2 '''
+#         print "intToByte() BEFORE command_b '%s', length: %d" % (command_b, length)
+        lengthBefore = len(command_b)
         for i in range(length):
+            #print "* i: %d header[i]: 0x%08X str(header[i]): %10s.  1st: %2s hdr: '%10s' 2nd: '%s'" % (i, header[i], str(header[i]), command_b[8:(offset2+i)], str(header[i]), command_b[(offset2+i):])
             command_b = command_b[0:(offset2+i)] + str(header[i]) + command_b[(offset2+i):]
-
+#         print "intToByte() AFTER  command_b '%s'" % (command_b)
+        return command_b[:lengthBefore]
+    
     def send_to_hw(self, Dev_RW, ADDR, Length, data):
         ''' Send (IP/Mac address) to Mezzanine '''
         # Example :
@@ -242,13 +247,18 @@ class FirmwareTesting(object):
         # Extract "start" key from dictionary, store locally as string
         command = FirmwareTesting.LegalCommands[self.command] + "                    " # Add 20 empty spaces in string allowing for formatted Mac/IP address to fit 
         #
-        self.intToByte( HEADER, 0, 3, 8, command)
-
+        
+#         print "send_to_hw() BEFORE command '%s'" % (command)
+        command = self.intToByte( HEADER, 0, 3, 8, command)
+#         print "send_to_hw() AFTER  command '%s'" % (command)
+        
+#         print "send_to_hw() early exit"
+#         return
         print "DEBUG command length %d" % len(command)
-        print "DEBUG command before (/wo sp-chars: '%s%s'" % (command[:6], command[8:])
+        print "DEBUG command before (/wo sp-chars): '%s%s'" % (command[:6], command[8:])
         try:
             for i in range(Length*2):
-                print " ** ", i, " begin: '%s' data[i]: '%s' end: '%s'" % (command[8:(20+i)], data[i], command[(20+i):] )
+#                 print " ** ", i, " begin: '%s' data[i]: '%s' end: '%s'" % (command[8:(20+i)], data[i], command[(20+i):] )
                 command = command[:(20+i)] +  str(data[i]) + command[(20+i):]
                 #command[20+i] = data[i]
         except Exception as e:
