@@ -194,307 +194,85 @@ address1M = create_mac(mac_addr1M)
   return mac_value;
 } 
 
+#### Original Java code for create_ip()         ####
 
 
-# Debugging area all finished #
-############# Copied in XML Parser class ###########
 
-class LpdReadoutConfigError(Exception):
-    
-    def __init__(self, msg):
-        self.msg = msg
-        
-    def __str__(self):
-        return self.msg
-    
-class LpdReadoutConfig():
-    
-    def __init__(self, xmlObject, fromFile=False):
-        
-        if fromFile == True:
-            self.tree = ElementTree.parse(xmlObject)
-            self.root = self.tree.getroot()
-        else:
-            self.tree = None;
-            self.root = ElementTree.fromstring(xmlObject)
+# Java original code:
 
-        if self.root.tag != 'lpd_readout_config':
-            raise LpdReadoutConfigError('Root element is not an LPD configuration tree')
-        
-    def parameters(self):
-        
-        for child in self.root:
-            
-            param = child.tag
-            paramType = child.get('type', default="str")
-            valStr = child.get('val', default=None)
-            
-            if valStr == None:
-                raise LpdReadoutConfigError("Parameter %s has no value specified" % param)
-            try:
-                valStr = valStr.split(",")
-                valLength = len( valStr)
-                val = []
+private byte[] create_ip(String ip_addr) {                                            
 
-                for idx in range(valLength):
+    byte ip_value[] = {0, 0, 0, 0, 0, 0, 0, 0};
+    int int_value[] = {0, 0, 0, 0, 0, 0, 0, 0};
+    byte var_b, lenb;	# lenb is redundant
+    String prtstring = "";
+    int i = 0;
+    int add = 0, len;	# add is redundant
+    int var_i = 0;
+    #..
+    #            char hdata[] ={'0'};
+    #           //String del_values = Control_Reg.getText();
+    #
+    StringTokenizer tok = new StringTokenizer(ip_addr,":. \t\n\r\f");
+    while (tok.hasMoreTokens()) {
+        String  cur_del = tok.nextToken();
+        var_i = 0;
+        len = cur_del.length();
+        lenb = (byte)len;       	# lenb is redundant
 
-                    if paramType == 'int':
-                        val.append( int(valStr[idx], 0))
-                    elif paramType == 'bool':
-                        if valStr[idx] == 'True':
-                            val.append( True)
-                        elif valStr[idx] == 'False':
-                            val.append( False)
-                        else:
-                            raise LpdReadoutConfigError("Parameter %s has illegal boolean value %s" % (param, valStr[idx]))
-                    elif paramType == 'str':
-                        val.append( str(valStr[idx]))
-                    else:
-                        raise LpdReadoutConfigError("Parameter %s has illegal type %s" % (param, paramType) )
+        var_i = Integer.valueOf(cur_del).intValue();
+        var_b = (byte)(var_i & 0x000000FF);
 
-                if valLength == 1:
-                    if paramType == 'int':
-                        val = val[0]
-                    elif paramType == 'bool':
-                        val = val[0]
-                    elif paramType == 'str':
-                        val = val[0]
+        prtstring = prtstring + cur_del;
+        int_value[i] = var_i;
+        ip_value[i] = var_b;
+        //add = add + i_delay;
+        i++;
+    }
+    System.out.println("IP Addr Hex =  "  + prtstring); 
+    String temp_addr = "" +  int_value[0] + "." + int_value[1] + "." + int_value[2] + "." + int_value[3]; 
+    if (addr_0){ ip_address_0 = temp_addr; addr_0 = false; }
+    if (addr_1){ ip_address_1 = temp_addr; addr_1 = false; }
+    if (addr_2){ ip_address_2 = temp_addr; addr_2 = false;}
+    System.out.println("IP Addr Clean : "  + temp_addr + "  "+ip_address_0+ "  "+ip_address_1+ "  "+ip_address_2);
 
-            except ValueError:
-                raise LpdReadoutConfigError("Parameter %s with value %s cannot be converted to type %s" % (param, valStr[idx], paramType))
+    return ip_value; 
+} 
 
-            yield (param, val)
-   
-####################################################
+# ---------------------------------------------------------------------- #
 
-def LpdReadoutTest(tenGig, femHost, femPort, destIp):
-    
-    theDevice = LpdDevice()
+# Java code with the redundant bits removed:
 
-    tenGigConfig   = EthernetUtility("eth%i" % tenGig)
-    tenGigDestIp   = tenGigConfig.ipAddressGet()
-    tenGigDestMac  = tenGigConfig.macAddressGet()
-    # Determine destination IP from tenGig unless supplied by parser
-    if destIp:
-        tenGigSourceIp = destIp
-    else:
-        tenGigSourceIp = tenGigConfig.obtainDestIpAddress(tenGigDestIp)
+private byte[] create_ip(String ip_addr) {                                            
 
-    rc = theDevice.open(femHost, femPort)
-    if rc != LpdDevice.ERROR_OK:
-        print "Failed to open FEM device [%s:%s]: %s" % (femHost, femPort, theDevice.errorStringGet())
-        return
-    else:
-        print "\nConnected to FEM device %s:%s" % (femHost, femPort)
+    byte ip_value[] = {0, 0, 0, 0, 0, 0, 0, 0};
+    int int_value[] = {0, 0, 0, 0, 0, 0, 0, 0};
+    byte var_b;
+    String prtstring = "";
+    int i = 0;
+    int len;
+    int var_i = 0;
+    StringTokenizer tok = new StringTokenizer(ip_addr,":. \t\n\r\f");
+    while (tok.hasMoreTokens()) {
+        String  cur_del = tok.nextToken();
+        var_i = 0;
+        len = cur_del.length();
 
-    # Display "expert" variables?
-    bDebug = True
-    
-    #Track number of configuration errors:
-    errorCount = 0
+        var_i = Integer.valueOf(cur_del).intValue();
+        var_b = (byte)(var_i & 0x000000FF);
 
-    ###################################################################
-    
-    AsicVersion = 2    # 1 or 2
-    xmlConfig   = 1   # 0=test, 1=short exposure, 2=long exposure, 3=pseudorandom, 4=all 3 gain readout with short exposure, 5=all 3 gain readout with long exposure
-	# (also for pseudo random  select that in asic data type and disable fast strobe for asicrx start)
+        prtstring = prtstring + cur_del;
+        int_value[i] = var_i;
+        ip_value[i] = var_b;
+        i++;
+    }
 
-    if AsicVersion == 1:
-
-        if xmlConfig == 1:
-            asicSetupParams = 'Config/SetupParams/Setup_LowPower.xml'
-            asicCmdSequence = 'Config/CmdSequence/Command_ShortExposure_V1.xml'
-        elif xmlConfig == 2:
-            asicSetupParams = 'Config/SetupParams/Setup_LowPower.xml'
-            asicCmdSequence = 'Config/CmdSequence/Command_LongExposure_V1.xml' 
-        elif xmlConfig == 3:
-            asicSetupParams = 'Config/SetupParams/Setup_LowPower.xml'
-            asicCmdSequence = 'Config/CmdSequence/asic_pseudo_random_asicv1.xml'
-        else:
-            asicSetupParams = 'Config/SetupParams/Setup_SingleFrame.xml'
-            asicCmdSequence = 'Config/CmdSequence/Command_SingleFrame.xml'
-    elif AsicVersion == 2:
-
-        if xmlConfig == 1:
-            asicSetupParams = 'Config/SetupParams/Setup_LowPower.xml'
-            asicCmdSequence = 'Config/CmdSequence/Command_ShortExposure_V2.xml'
-#            asicCmdSequence = 'Config/CmdSequence/Command_ShortExposure_V2_multipleImages.xml'
-        elif xmlConfig == 2:
-            asicSetupParams = 'Config/SetupParams/Setup_LowPower.xml'
-#            asicSetupParams = 'Config/SetupParams/Setup_LowPower_128Asics.xml'
-            asicCmdSequence = 'Config/CmdSequence/Command_LongExposure_V2.xml'
-#            asicCmdSequence = 'Config/CmdSequence/Command_LongExposure_MultipleImages_512.xml'
-        elif xmlConfig == 3:
-            asicSetupParams = 'Config/SetupParams/Setup_LowPower.xml'
-            asicCmdSequence = 'Config/CmdSequence/asic_pseudo_random_asicv2.xml'
-        elif xmlConfig == 4:
-            asicSetupParams = 'Config/SetupParams/Setup_LowPower.xml'
-            asicCmdSequence = 'Config/CmdSequence/short_exposure_all_3gains_asicv2_B.xml'
-        elif xmlConfig == 5:
-            asicSetupParams = 'Config/SetupParams/Setup_LowPower.xml'
-            asicCmdSequence = 'Config/CmdSequence/long_exposure_all_3gains_asicv2_C.xml'
-        elif xmlConfig == 6:
-            asicSetupParams = 'Config/SetupParams/Setup_Chessboard.xml'
-            asicCmdSequence = 'Config/CmdSequence/Command_ShortExposure_V2.xml'
-        else:
-            asicSetupParams = "Config/SetupParams/Setup_Serial_8through1.xml"    # Left to right: ascending order
-            asicCmdSequence = 'Config/CmdSequence/Command_LongExposure_V2.xml'
-#        asicSetupParams = "Config/SetupParams/Setup_Serial_1through8.xml"    # Left to right: ascending order
-#        asicSetupParams = "Config/SetupParams/Setup_Serial_8through1.xml"    # Left to right: ascending order
-            asicSetupParams = "Config/SetupParams/Setup_Serial_XFEL.xml"
-#            asicSetupParams = "Config/SetupParams/Setup_Serial_KLASSE.xml"
-
-    configFilename = 'Config/readoutConfiguration.xml'
-#    asicSetupParams = "/u/ckd27546/workspace/lpdSoftware/LpdFemTests/Config/SetupParams/Setup_Matt.xml"    # Left to right: ascending order
-#    asicCmdSequence = '/u/ckd27546/workspace/lpdSoftware/LpdFemGui/config/Command_LongExposure_V2.xml'
-#    configFilename = '/u/ckd27546/workspace/lpdSoftware/LpdFemGui/config/superModuleReadout.xml'
-
-    print "================    XML Filenames   ================"
-    print asicSetupParams
-    print asicCmdSequence
-    print configFilename
-
-    ###################################################################
-
-    rc = theDevice.paramSet('femAsicSetupParams', asicSetupParams)
-    if rc != LpdDevice.ERROR_OK:
-        print "femAsicSetupParams set failed rc=%d : %s" % (rc, theDevice.errorStringGet())
-        errorCount += 1
-    
-    rc = theDevice.paramSet('femAsicCmdSequence', asicCmdSequence)
-    if rc != LpdDevice.ERROR_OK:
-        print "femAsicCmdSequence set failed rc=%d : %s" % (rc, theDevice.errorStringGet())
-        errorCount += 1
-
-    #########################################################
-    # Set variables using XML configuration file
-    #########################################################
-
-    basicConfig = LpdReadoutConfig(configFilename, fromFile=True)
-    for (paramName, paramVal) in basicConfig.parameters():
-        rc = theDevice.paramSet(paramName, paramVal)
-        if rc != LpdDevice.ERROR_OK:
-            print "Error %d: configuring %s to value: " % (rc, paramName), paramVal
-            errorCount += 1
-    
-    ############################################################
-    # Set variables using API calls that are machine specific
-    #########################################################
-    
-    param = 'tenGig0SourceIp'
-    rc = theDevice.paramSet(param, tenGigSourceIp)
-    if rc != LpdDevice.ERROR_OK:
-        print "%s set failed rc=%d : %s" % (param, rc, theDevice.errorStringGet())
-        errorCount += 1
-    
-    param = 'tenGig0DestMac'
-    rc = theDevice.paramSet(param, tenGigDestMac)
-    if rc != LpdDevice.ERROR_OK:
-        print "%s set failed rc=%d : %s" % (param, rc, theDevice.errorStringGet())
-        errorCount += 1
-    
-    param = 'tenGig0DestIp'
-    rc = theDevice.paramSet(param, tenGigDestIp)
-    if rc != LpdDevice.ERROR_OK:
-        print "%s set failed rc=%d : %s" % (param, rc, theDevice.errorStringGet())
-        errorCount += 1
-    
-
-    #########################################################
-    # Check for errors before proceeding..
-    #########################################################
-    
-    if errorCount > 0:
-        print "================================"
-        print "Detected %i error(s), aborting.." % errorCount
-    else:
-        # No errors encountered, proceeding
-
-        #########################################################
-        # Read back the "Expert" Level variables settings
-        #########################################################
-    
-        if bDebug:
-
-            print "================ 'Expert' Variables ================"
-            paramExpertVariables = ['tenGig0SourceMac', 'tenGig0SourceIp', 'tenGig0SourcePort', 'tenGig0DestMac', 'tenGig0DestIp', 'tenGig0DestPort', 'tenGig0DataFormat',
-                                    'tenGig0DataGenerator', 'tenGig0FrameLength', 'tenGig0NumberOfFrames', 'tenGigFarmMode', 'tenGigInterframeGap', 'tenGigUdpPacketLen', 
-                                    'femAsicSetupClockPhase', 'femAsicVersion', 'femDebugLevel', 'femEnableTenGig',
-                                    'femStartTrainPolarity', 'femVetoPolarity',
-                                    'cccSystemMode', 'cccEmulationMode', 'cccProvideNumberImages', 'cccVetoStartDelay', 'cccStopDelay', 'cccResetDelay']
+    return ip_value; 
+} 
 
 
-        for param in paramExpertVariables:
-            (rc, value) = theDevice.paramGet(param)
-            if rc != LpdDevice.ERROR_OK:
-                print "%s get failed rc=%d : %s" % (param, rc, theDevice.errorStringGet())
-            else:
-                print "{0:<32} = {1:<10}".format(param, value.__repr__())
 
-        #########################################################
-        # Read back all User Level variables
-        #########################################################
-        
-        paramUserVariables = ['femAsicClockSource', 'femAsicDataType', 'femAsicGain', 'femAsicGainOverride', 'femAsicLocalClock', 'femAsicModuleType', 
-                              'femAsicPixelFeedbackOverride', 'femAsicPixelSelfTestOverride', 'femAsicRxCmdWordStart', 'femAsicSetupLoadMode',
-                              'femStartTrainSource', 'femDataSource', 'femInvertAdcData', 'numberImages', 'numberTrains', 'femStartTrainDelay', 'femStartTrainInhibit']
-        #TODO: Add when implemented? [if implemented..]
-#        param = 'femPpcMode'
-
-        print "================ 'User'   Variables ================"
-
-        for param in paramUserVariables:
-            (rc, value) = theDevice.paramGet(param)
-            if rc != LpdDevice.ERROR_OK:
-                print "%s get failed rc=%d : %s" % (param, rc, theDevice.errorStringGet())
-            else:
-                print "{0:<32} = {1:<10}".format(param, value.__repr__())
-
-        param = 'femAsicEnableMask'
-        (rc, value) = theDevice.paramGet(param)
-        if rc != LpdDevice.ERROR_OK:
-            print "%s get failed rc=%d : %s" % (param, rc, theDevice.errorStringGet())
-        else:
-            print "{0:<32} = [{1:<8X}, {2:<8X}, {3:<8X}, {4:<8X}]".format(param, value[0], value[1], value[2], value[3])
-    
-        # Check XML string variables read back, but don't display their [long-winded] XML strings
-        paramUserExtraVariables = ['femAsicCmdSequence',  'femAsicSetupParams'] 
-
-        for param in paramUserExtraVariables:
-            (rc, value) = theDevice.paramGet(param)
-            if rc != LpdDevice.ERROR_OK:
-                print "%s get failed rc=%d : %s" % (param, rc, theDevice.errorStringGet())
-#            else:
-#                print "{0:<32} = {1:<10}".format(param, value)
-            
-        #########################################################
-        # Configure the FEM
-        #########################################################
-
-        rc = theDevice.configure()
-        if rc != LpdDevice.ERROR_OK:
-            print "configure() failed rc=%d : %s" % (rc, theDevice.errorStringGet())
-            theDevice.close()
-            sys.exit()
-
-        # Acquire image data
-        rc = theDevice.start()
-        if rc != LpdDevice.ERROR_OK:
-            print "run() failed rc=%d : %s" % (rc, theDevice.errorStringGet())
-            theDevice.close()
-            sys.exit()
-    
-        # Stop transaction
-        rc = theDevice.stop()
-        if rc != LpdDevice.ERROR_OK:
-            print "stop() failed rc=%d : %s" % (rc, theDevice.errorStringGet())
-            theDevice.close()
-            sys.exit()
-
-    print "Closing Fem connection.. "
-    print "Debug timestamp: %s" % str( datetime.now())[11:-4]        
-    theDevice.close()
-
+####  Kept this below in case it might prove useful in the future #####
 
 if __name__ == '__main__':
 
