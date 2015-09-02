@@ -133,14 +133,7 @@ class FirmwareTesting(object):
             
             # Configure link(s) 
 
-#             src0mac = "00 : 07 : 11 : F0 : FF : 33"    # Src0 (Mezzanine)
-#             dst0mac = "00 : 07 : 43 : 10 : 63 : 00"    # Dst0 (PC)
-#             src1mac = "00 : 07 : 11 : F0 : FF : 44"    # Src1 (Mezzanine)
-#             dst1mac = "00 : 07 : 43 : 10 : 5F : 20"    # Dst1 (PC)
-#             src2mac = "00 : 07 : 11 : F0 : FF : 55"    # Src2 (Mezzanine)
-#             dst2mac = "EC : F4 : BB : CC : D3 : A8"    # Dst2 (PC)
-            
-            theDelay = 1.0  # Between each TCP transmission
+            theDelay = 2.480  # Between each TCP transmission
             
 #             debugList = [self.src0addr, self.src1addr, self.src2addr, self.dst0addr, self.dst1addr, self.dst2addr]
 #             print "MAC addresses.."
@@ -190,13 +183,6 @@ class FirmwareTesting(object):
                 macSourceStr = ''.join(tokenList)
                 self.send_to_hw(FirmwareTesting.Eth_Dev_RW, FirmwareTesting.MAC_5_ADDR, 6, macSourceStr)
                 time.sleep(theDelay)
-
-#             src0ip  = "10.1.0.101"    # Src0 (Mezzanine)
-#             dst0ip  = "10.1.0.1"      # Dst0 (PC)
-#             src1ip  = "10.1.0.102"    # Src1 (Mezzanine)
-#             dst1ip  = "10.1.0.2"      # Dst1 (PC)
-#             src2ip  = "10.1.0.103"    # Src2 (Mezzanine)
-#             dst2ip  = "10.1.0.3"      # Dst2 (PC)
 
             src0ip = self.src0addr[FirmwareTesting.IP]
             src1ip = self.src1addr[FirmwareTesting.IP]
@@ -270,23 +256,21 @@ class FirmwareTesting(object):
         ip_value  = ['0'] * 4        # Return value
         int_value = ['0'] * 4
         var_b = ""
-        #
+
         hexString = ""
         var_i = 0
         tokenList = self.tokeniser(ip_addr)
         for index in range(len(tokenList)):
             var_i = 0
-            #
+
             var_i = int(tokenList[index])
             var_b = (var_i & 0x000000FF)
-            #
-            #hexString = hexString + " %.2X" % (var_i)    # Construct hexadecimal string of IP address
+
             hexString = hexString + str(tokenList[index] )
             int_value[index] = var_i
-#             ip_value[index] = '%02d' % (var_b)  # Decimal conversion
             ip_value[index] = '%02X' % (var_b)  # Hexadecimal conversion
-            #ip_value[index] = str(var_b)
 
+        #TODO: Redundant section: (Only translated from Java source code)
         #print "IP Addr Hex =  ", hexString
         temp_addr = "" + str(int_value[0]) + "." + str(int_value[1]) + "." + str(int_value[2]) + "." + str(int_value[3]) 
         if FirmwareTesting.address0Enabled:
