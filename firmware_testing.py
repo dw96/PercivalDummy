@@ -133,7 +133,7 @@ class FirmwareTesting(object):
             
             # Configure link(s) 
 
-            theDelay = 2.480  # Between each TCP transmission
+            theDelay = 0.500  # Between each TCP transmission
             
 #             debugList = [self.src0addr, self.src1addr, self.src2addr, self.dst0addr, self.dst1addr, self.dst2addr]
 #             print "MAC addresses.."
@@ -290,6 +290,7 @@ class FirmwareTesting(object):
     
     # Convert create_mac() into Python
     def create_mac(self, mac_add):
+        ''' Convert mac address from string format into list '''
         mac_value = ['0'] * 8
         int_value = ['0'] * 8
         var_b   = [0]    #TODO: byte type, in Python should be..?
@@ -363,8 +364,6 @@ class FirmwareTesting(object):
         except Exception as e:
             print "FW ** Exception: %s" % e
         
-        #print "About to transmit '%s..%s', %d character(s).  ['..'=2 special characters]" % (command[:6], command[8:], len(command))
-        
         # Transmit command
         try:
             bytesSent = self.sock.send(command)
@@ -381,7 +380,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="FirmwareTesting - control hardware emulator start/stop", epilog="Specify IP & Mac like: '10.1.0.101:00-07-11-F0-FF-33'")
     
-    parser.add_argument('--host', type=str, default='192.168.0.111', 
+    parser.add_argument('--host', type=str, default='192.168.0.103', 
                         help="select emulator IP address")
     parser.add_argument('--port', type=int, default=4321,
                         help='select emulator IP port')
@@ -403,21 +402,12 @@ if __name__ == '__main__':
                         help='Configure PC link 2 IP:MAC addresses')
     
     parser.add_argument('command', choices=FirmwareTesting.LegalCommands.keys(), default="start",
-                        help="specify which command to send to emulator")
+                        help="_____mulator")
 
     args = parser.parse_args()
     try:
+#         print "args: ", args, args.__dict__, "\n\n"
         client = FirmwareTesting(args.host, args.port, args.timeout, args.src0, args.src1, args.src2, args.dst0, args.dst1, args.dst2)
-#         print " *** parser hijacked"
-#         print "args: ", args, args.__dict__
-#         args.command = "command"
         client.execute(args.command)
     except Exception as e:
         print e
-#         
-#  --src0 10.1.0.101:00-07-11-F0-FF-33
-#  --dst0 10.1.0.1:00-07-43-10-63-00
-#  --src1 10.1.0.102:00-07-11-F0-FF-44
-#  --dst1 10.1.0.2:00-07-43-10-5F-20
-#  --src2 10.1.0.103:00-07-11-F0-FF-55
-#  --dst2 10.1.0.3:EC-F4-BB-CC-D3-A8
