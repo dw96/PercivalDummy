@@ -149,50 +149,49 @@ class EmulatorClient(object):
             if src2ip:
                 ipList = self.create_ip(src2ip)
                 ipSourceString = ''.join(ipList)
-                command2ip = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.IP_4_ADDR, 4, ipSourceString)
+                cmdSrc2ip = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.IP_4_ADDR, 4, ipSourceString)
  
             if dst2ip:
                 ipList = self.create_ip(dst2ip)
                 ipSourceString = ''.join(ipList)
-                command2mac = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.IP_5_ADDR, 4, ipSourceString)
+                cmdDst2ip = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.IP_5_ADDR, 4, ipSourceString)
      
             if src2mac:
                 tokenList = self.tokeniser(src2mac)
                 macSourceStr = ''.join(tokenList)
-                source2macCmd = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_4_ADDR, 6, macSourceStr)
+                cmdSrc2mac = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_4_ADDR, 6, macSourceStr)
 
             if dst2mac:
                 tokenList = self.tokeniser(dst2mac)
                 macSourceStr = ''.join(tokenList)
-                dest2macCmd = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_5_ADDR, 6, macSourceStr)
-#                   
-#             if src2ip:
-#                 ipList = self.create_ip(src2ip)
-#                 ipSourceString = ''.join(ipList)
-#                 command2ip = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.IP_4_ADDR, 4, ipSourceString)
-#  
-#             if dst2ip:
-#                 ipList = self.create_ip(dst2ip)
-#                 ipSourceString = ''.join(ipList)
-#                 command2mac = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.IP_5_ADDR, 4, ipSourceString)
+                cmdDst2mac = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_5_ADDR, 6, macSourceStr)
+                   
+            if src1ip:
+                ipList = self.create_ip(src1ip)
+                ipSourceString = ''.join(ipList)
+                cmdSrc1ip = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.IP_2_ADDR, 4, ipSourceString)
+  
+            if dst1ip:
+                ipList = self.create_ip(dst1ip)
+                ipSourceString = ''.join(ipList)
+                cmdDst1ip = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.IP_3_ADDR, 4, ipSourceString)
 #      
 #             if src2mac:
 #                 tokenList = self.tokeniser(src2mac)
 #                 macSourceStr = ''.join(tokenList)
-#                 source2macCmd = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_4_ADDR, 6, macSourceStr)
+#                 cmdSrc2mac = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_4_ADDR, 6, macSourceStr)
 # 
 #             if dst2mac:
 #                 tokenList = self.tokeniser(dst2mac)
 #                 macSourceStr = ''.join(tokenList)
-#                 dest2macCmd = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_5_ADDR, 6, macSourceStr)
+#                 cmdDst2mac = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_5_ADDR, 6, macSourceStr)
 
-            compoundedCommand = command2mac + command2ip
-            #print "compoundedCommand '%s' command2mac '%s' command2ip '%s'\n" % (compoundedCommand, command2mac, command2ip)
+            compoundedCommand = cmdDst2ip + cmdSrc2ip
             print "src2&dst2 IPs [%s & %s] sent jointly:" % (src2ip, dst2ip)
             self.send_command(compoundedCommand)
             time.sleep(theDelay)
 
-            compoundedCommand = source2macCmd + dest2macCmd
+            compoundedCommand = cmdSrc2mac + cmdDst2mac
             print "src2&dst2 MACs [%s & %s] sent jointly:" % (src2mac, dst2mac)
             self.send_command(compoundedCommand)
             time.sleep(theDelay)
