@@ -209,15 +209,15 @@ class EmulatorClient(object):
 #             time.sleep(theDelay)
             
             compoundedCommand = cmdSrc0ip + cmdDst0ip
-            compoundedCommand = cmdSrc1ip + cmdDst1ip
-            compoundedCommand = cmdSrc2ip + cmdDst2ip
+            compoundedCommand += cmdSrc1ip + cmdDst1ip
+            compoundedCommand += cmdSrc2ip + cmdDst2ip
             print "Sending 6 commands into 1 packet"
             self.send_command(compoundedCommand)
             time.sleep(theDelay)
 
             compoundedCommand = cmdSrc0mac + cmdDst0mac
-            compoundedCommand = cmdSrc1mac + cmdDst1mac
-            compoundedCommand = cmdSrc2mac + cmdDst2mac
+            compoundedCommand += cmdSrc1mac + cmdDst1mac
+            compoundedCommand += cmdSrc2mac + cmdDst2mac
             print "Sending 6 commands into 1 packet, second lot"
             self.send_command(compoundedCommand)
 
