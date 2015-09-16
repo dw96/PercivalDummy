@@ -175,35 +175,82 @@ class EmulatorClient(object):
                 ipList = self.create_ip(dst1ip)
                 ipSourceString = ''.join(ipList)
                 cmdDst1ip = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.IP_3_ADDR, 4, ipSourceString)
-#      
-#             if src2mac:
-#                 tokenList = self.tokeniser(src2mac)
-#                 macSourceStr = ''.join(tokenList)
-#                 cmdSrc2mac = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_4_ADDR, 6, macSourceStr)
-# 
-#             if dst2mac:
-#                 tokenList = self.tokeniser(dst2mac)
-#                 macSourceStr = ''.join(tokenList)
-#                 cmdDst2mac = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_5_ADDR, 6, macSourceStr)
+      
+            if src1mac:
+                tokenList = self.tokeniser(src1mac)
+                macSourceStr = ''.join(tokenList)
+                cmdSrc1mac = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_4_ADDR, 6, macSourceStr)
+ 
+            if dst1mac:
+                tokenList = self.tokeniser(dst1mac)
+                macSourceStr = ''.join(tokenList)
+                cmdDst1mac = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_5_ADDR, 6, macSourceStr)
+                   
+            if src0ip:
+                ipList = self.create_ip(src0ip)
+                ipSourceString = ''.join(ipList)
+                cmdSrc0ip = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.IP_0_ADDR, 4, ipSourceString)
+  
+            if dst0ip:
+                ipList = self.create_ip(dst0ip)
+                ipSourceString = ''.join(ipList)
+                cmdDst0ip = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.IP_1_ADDR, 4, ipSourceString)
+      
+            if src0mac:
+                tokenList = self.tokeniser(src0mac)
+                macSourceStr = ''.join(tokenList)
+                cmdSrc0mac = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_0_ADDR, 6, macSourceStr)
+ 
+            if dst0mac:
+                tokenList = self.tokeniser(dst0mac)
+                macSourceStr = ''.join(tokenList)
+                cmdDst0mac = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_1_ADDR, 6, macSourceStr)
 
-            compoundedCommand = cmdDst2ip + cmdSrc2ip
-            print "src2&dst2 IPs [%s & %s] sent jointly:" % (src2ip, dst2ip)
+#             time.sleep(theDelay)
+            
+            compoundedCommand = cmdSrc0ip + cmdDst0ip
+            compoundedCommand = cmdSrc1ip + cmdDst1ip
+            compoundedCommand = cmdSrc2ip + cmdDst2ip
+            print "Sending 6 commands into 1 packet"
             self.send_command(compoundedCommand)
             time.sleep(theDelay)
 
+            compoundedCommand = cmdSrc0mac + cmdDst0mac
+            compoundedCommand = cmdSrc1mac + cmdDst1mac
+            compoundedCommand = cmdSrc2mac + cmdDst2mac
+            print "Sending 6 commands into 1 packet, second lot"
+            self.send_command(compoundedCommand)
+
+
+#             
+#             print "send command to be ignored? Yes that means you stupid"
+#             tokenList = self.tokeniser(dst1mac)
+#             macSourceStr = ''.join(tokenList)
+#             cmdDst1mac = self.construct_command(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_5_ADDR, 6, macSourceStr)
+#             self.send_to_hw(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_5_ADDR, 6, macSourceStr)
+#             time.sleep(theDelay)
+
+
+
+            return
+            
             compoundedCommand = cmdSrc2mac + cmdDst2mac
             print "src2&dst2 MACs [%s & %s] sent jointly:" % (src2mac, dst2mac)
             self.send_command(compoundedCommand)
             time.sleep(theDelay)
 
-#             print "and the bastard command:"
-# 
-#             if src0mac:
-#                 tokenList = self.tokeniser(src0mac)
-#                 macSourceStr = ''.join(tokenList)
-#                 self.send_to_hw(EmulatorClient.Eth_Dev_RW, EmulatorClient.MAC_0_ADDR, 6, macSourceStr)
-#                 time.sleep(theDelay)
-#             
+            compoundedCommand = cmdSrc2mac + cmdDst2mac
+            compoundedCommand = cmdSrc1ip + cmdDst1ip
+            print "src1&dst1 IPs [%s & %s] sent jointly:" % (src1ip, dst1ip)
+            self.send_command(compoundedCommand)
+            time.sleep(theDelay)
+
+            compoundedCommand = cmdSrc2mac + cmdDst2mac
+            compoundedCommand = cmdSrc1ip + cmdDst1ip
+            compoundedCommand = cmdSrc1mac + cmdDst1mac
+            print "src1&dst1 MACs [%s & %s] sent jointly:" % (src1mac, dst1mac)
+            self.send_command(compoundedCommand)
+            time.sleep(theDelay)
 
             return
         
