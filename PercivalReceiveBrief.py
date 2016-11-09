@@ -12,7 +12,7 @@ def PercivalReceiveBrief(address, udpPort):
     UDP_PORT = udpPort    #8001
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.settimeout(10) #5)
+    sock.settimeout(100) #5)
     sock.bind((UDP_IP, UDP_PORT))
 
     # Open and close dummy file
