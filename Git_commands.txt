@@ -50,7 +50,7 @@ Pass: ssh-keygen -t rsa -C "keyphrase" ^^
 
 -------
 
-[1.6 Get Started - First-Time Git Setup]
+[1.6 Get Started - First-Time Git Setup]	-	URL: https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup
 
 git config --global user.name "John Doe"
 git config --global user.email johndoe@example.com
@@ -58,7 +58,14 @@ git config --global core.editor emacs
 git config --list			(List your settings)
 git config <key>			(Check a specific key, e.g.: git config user.name)
 
-[2.1 Git Basics - Getting a Git Repository]
+[1.7 Getting Started - Getting Help]
+
+git help <verb>
+git <verb> --help
+man git-<verb>
+
+
+[2.1 Git Basics - Getting a Git Repository]	-	If you read only one chapter, this is it; https://git-scm.com/book/en/v2/Git-Basics-Getting-a-Git-Repository
 ..
 
 [2.2 Git Basics - Recording Changes to the Repository]
@@ -148,6 +155,7 @@ git log --oneline --decorate --graph --all	(Show history of commits, including b
 
 [3.2 Git Branching - Basic Branching and Merging]
 
+
 git checkout -b <branch name>			(Create and switch to branch name)
 git checkout master; git merge hotfix		(Merge hotfix into master)
 git branch -d <branch name>			(Delete branch name)
@@ -170,9 +178,15 @@ git push origin localbranch:remotebranch		(Ditto, specifying remotebranch's name
 git checkout -b localbranch origin/remotebranch	 	(Gives you a local branch beginning at origin/remotebranch)
 git branch -vv						(List local branches with tracking status; NOTE: based upon cached values)
 							(To ensure up-to-date numbers: 		)
-							(git fetch --all; git Branch -vv	)
+							(git fetch --all; git branch -vv	)
 git fetch --all						(Ensure change(s) from remote(s) downloaded)
 git push remote --delete branch				(Delete branch from remote server)
+
+	10:38 28/11/2016	(git version 1.7 syntax)
+
+
+git branch --set-upstream client-requests origin/master	(Make local branch client-requests track remote branch: master at repo: origin)
+git merge origin/master					(Merge remote branch onto local branch - Above line may be redundant)
 
 [3.6 Git Branching - Rebasing]
 
@@ -194,6 +208,8 @@ git merge [branch]
 
 
 Miscellaneous:
+
+git show HEAD~4  | less			(Show fourth most recent version (of all changed files))	- See also: http://stackoverflow.com/questions/338436/is-there-a-quick-git-command-to-see-an-old-version-of-a-file
 
 git show <SHA-1>			(Show commit corresponding to SHA-1 string)
 git log --abbrev-commit --pretty=oneline (Shrinks SHA-1 into shorter, unique strings)

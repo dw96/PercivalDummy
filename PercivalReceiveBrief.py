@@ -35,7 +35,7 @@ def PercivalReceiveBrief(address, udpPort):
                 # Data received, open file handle if shut
                 if f.closed:
                     dateString = datetime.now().strftime("%Y%m%d-%H%M%S")
-                    fileName = "/tmp/Percy_headers-%s.txt" % ( dateString)
+                    fileName = "/tmp/Percy_headers-%d-%s.txt" % (UDP_PORT, dateString)
                     f = open(fileName, "w")
                     print >> f, "________________________________________"
                     print >> f, ("Target: %s:%d\n" % (UDP_IP, UDP_PORT))
@@ -73,13 +73,11 @@ def PercivalReceiveBrief(address, udpPort):
                     print "(Saved file %s) " % index
                 break
                 #
-            npData = np.fromstring(data[:23], dtype='uint8')
+            npData = np.fromstring(data[:24], dtype='uint8')
             # Only display first & last packets of each subframe
             if (npData[7] < 10) or (npData[7] > 245):
-                if npData[7] == 0:
-                    print >> f, ("\npktNum:%i" % packetCounter)
                 # Display 22 byte header of each packet
-                for index in range(22):
+                for index in range(24):
                     if index % 8 == 0:
                         print >> f, "  ",
                     print >> f, ("%02X" % npData[index]),
@@ -88,15 +86,18 @@ def PercivalReceiveBrief(address, udpPort):
     except Exception as e:
         print "Unsuspected error:", e
 
-
 def headerInfo(fHandle):
     ''' Display internal boundaries within the UDP header '''
-    print >> fHandle, "   PktType [1 Byte]"
-    print >> fHandle, "      subframeNumber [1 Byte]"
-    print >> fHandle, "         FrameNumber [4 Bytes]"
-    print >> fHandle, "                     PacketNumber [2 Bytes]"
-    print >> fHandle, "   |  |  |           |"
-    print >> fHandle, "   |  |  |           |"
+    print >> fHandle, "   PxlData [2 Byte]"
+    print >> fHandle, "         PktType [1 Byte]"
+    print >> fHandle, "   |        subframeNumber [1 Byte]"
+    print >> fHandle, "   |     |     FrameNumber [4 Bytes]"
+    print >> fHandle, "   |     |  |                 PacketNumber [2 Bytes]"
+    print >> fHandle, "   |     |  |  |                    PacketOffset [2 Bytes]"
+    print >> fHandle, "   |     |  |  |              |           Information [12 Bytes]"
+    print >> fHandle, "   |     |  |  |              |     |     |"
+    print >> fHandle, "   |     |  |  |              |     |     |"
+
 
 if __name__ == "__main__":
     # Test user specified (UDP port) command line argument
