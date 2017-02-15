@@ -15,6 +15,21 @@ git commit -m "first commit"
 git remote add origin git@github.com:dw96/PercivalDummy.git
 git push -u origin master
 
+
+	11:50 15/02/2017 - committing, a miniature guide
+
+     AVOID pushing onto master in most cases!
+
+   179  11:43   git remote -v
+   180  11:44   git branch -vv
+   182  11:45   git pull <remote> <branch>
+   183  11:46   git pull origin master
+   181  11:44   git status
+   171  11:15   git add some_file.py
+   176  11:42   git commit -m "commit comment"
+   186  11:45   git push <remote> <branch>
+
+
 -----
 
 git push origin master (push changes from local to remote(?))
